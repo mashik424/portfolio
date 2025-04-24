@@ -1,5 +1,5 @@
 class Skill {
-  Skill({required this.name,  this.avatar, this.id});
+  Skill({required this.name, this.avatar, this.id});
 
   factory Skill.fromJson(Map<String, dynamic> json, {String? id}) {
     return Skill(
@@ -9,8 +9,12 @@ class Skill {
     );
   }
 
-  Skill copyWith({String? id, String? name, String? avatar}) {
-    return Skill(id: id ?? this.id, name: this.name, avatar: this.avatar);
+  Skill copyWith({String? name, String? avatar}) {
+    return Skill(
+      id: id,
+      name: name ?? this.name,
+      avatar: avatar ?? this.avatar,
+    );
   }
 
   final String? id;

@@ -11,9 +11,12 @@ part 'companies_provider.g.dart';
 class CompaniesList extends _$CompaniesList {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
+  CollectionReference<Map<String, dynamic>> get _companies =>
+      _firestore.collection('companies');
+
   @override
   Future<List<Company>> build() async {
-    final snapshot = await _firestore.collection('companies').get();
+    final snapshot = await _companies.get();
 
     if (snapshot.docs.isNotEmpty) {
       return snapshot.docs
@@ -40,9 +43,7 @@ class CompaniesList extends _$CompaniesList {
       );
     }
 
-    await _firestore
-        .collection('companies')
-        .add(company.copyWith(logoUrl: logoUrl).toJson());
+    await _companies.add(company.copyWith(logoUrl: logoUrl).toJson());
 
     ref.invalidateSelf();
     await future;
@@ -52,7 +53,7 @@ class CompaniesList extends _$CompaniesList {
     if (company.logoUrl != null) {
       await ref.read(deleteFileFromUrlProvider(url: company.logoUrl!).future);
     }
-    await _firestore.collection('companies').doc(company.id).delete();
+    await _companies.doc(company.id).delete();
 
     ref.invalidateSelf();
     await future;
@@ -61,26 +62,25 @@ class CompaniesList extends _$CompaniesList {
   Future<void> updateCompany({
     required String id,
     required Company company,
-    Uint8List? bytes,
+    Uint8List? imageBytes,
   }) async {
     var logoUrl = company.logoUrl;
 
-    if (bytes != null) {
+    if (imageBytes != null) {
       if (logoUrl != null) {
         await ref.read(deleteFileFromUrlProvider(url: logoUrl).future);
       }
 
       logoUrl = await ref.read(
         uploadImageProvider(
-          bytes: bytes,
+          bytes: imageBytes,
           folder: 'companies',
           fileName: company.name,
         ).future,
       );
     }
 
-    await _firestore
-        .collection('companies')
+    await _companies
         .doc(id)
         .update(company.copyWith(logoUrl: logoUrl).toJson());
 

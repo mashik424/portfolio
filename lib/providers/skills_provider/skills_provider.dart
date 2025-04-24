@@ -1,15 +1,21 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:portfolio/models/skill.dart';
+import 'package:portfolio/providers/file_upload_provider/file_upload_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'skills_provider.g.dart';
 
 @riverpod
 class SkillList extends _$SkillList {
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
+
+  CollectionReference<Map<String, dynamic>> get _skills =>
+      _firestore.collection('skills');
   @override
   Future<List<Skill>> build() async {
-    final firestore = FirebaseFirestore.instance;
-    final snapshot = await firestore.collection('skills').get();
+    final snapshot = await _skills.get();
 
     if (snapshot.docs.isNotEmpty) {
       return snapshot.docs
@@ -20,17 +26,57 @@ class SkillList extends _$SkillList {
     }
   }
 
-  Future<void> addSkill(Skill skill) async {
-    final firestore = FirebaseFirestore.instance;
-    await firestore.collection('skills').add(skill.toJson());
+  Future<void> addSkill({required Skill skill, Uint8List? imageBytes}) async {
+    String? logoUrl;
+
+    if (imageBytes != null) {
+      logoUrl = await ref.read(
+        uploadImageProvider(
+          bytes: imageBytes,
+          folder: 'skills',
+          fileName: skill.name,
+        ).future,
+      );
+    } else {}
+
+    await _skills.add(skill.copyWith(avatar: logoUrl).toJson());
 
     ref.invalidateSelf();
     await future;
   }
 
-  Future<void> deleteSkill(String id) async {
-    final firestore = FirebaseFirestore.instance;
-    await firestore.collection('skills').doc(id).delete();
+  Future<void> deleteSkill(Skill skill) async {
+    if (skill.avatar != null) {
+      await ref.read(deleteFileFromUrlProvider(url: skill.avatar!).future);
+    }
+    await _skills.doc(skill.id).delete();
+
+    ref.invalidateSelf();
+    await future;
+  }
+
+  Future<void> updateSkill({
+    required String id,
+    required Skill skill,
+    Uint8List? imageBytes,
+  }) async {
+    var logoUrl = skill.avatar;
+
+    if (imageBytes != null) {
+      if (logoUrl != null) {
+        await ref.read(deleteFileFromUrlProvider(url: logoUrl).future);
+      }
+
+      logoUrl = await ref.read(
+        uploadImageProvider(
+          bytes: imageBytes,
+          folder: 'companies',
+          fileName: skill.name,
+        ).future,
+      );
+    } else {}
+
+    await _skills.doc(id).update(skill.copyWith(avatar: logoUrl).toJson());
 
     ref.invalidateSelf();
     await future;

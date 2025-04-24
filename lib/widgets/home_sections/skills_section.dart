@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/models/skill.dart';
@@ -44,22 +45,43 @@ class _SkillsSectionState extends ConsumerState<SkillsSection> {
               runSpacing: 15,
               children: [
                 ...skills.map(
-                  (skill) => Chip(
-                    deleteIcon: const Icon(Icons.close),
-                    onDeleted:
-                        authState.isLoggedin
-                            ? () {
-                              if (authState.isLoggedin && skill.id != null) {
-                                ref
-                                    .read(skillListProvider.notifier)
-                                    .deleteSkill(skill.id!);
+                  (skill) => GestureDetector(
+                    onTap: () {
+                      if (authState.isLoggedin && skill.id != null) {
+                        _addSkill(skill: skill);
+                      }
+                    },
+                    child: Chip(
+                      deleteIcon: const Icon(Icons.close),
+                      labelPadding: EdgeInsets.zero,
+                      onDeleted:
+                          authState.isLoggedin
+                              ? () {
+                                if (authState.isLoggedin && skill.id != null) {
+                                  ref
+                                      .read(skillListProvider.notifier)
+                                      .deleteSkill(skill);
+                                }
                               }
-                            }
-                            : null,
-                    label: Text(skill.name),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                              : null,
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (skill.avatar != null) ...[
+                            CachedNetworkImage(
+                              imageUrl: skill.avatar!,
+                              height: 24,
+                              width: 24,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(skill.name),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                   ),
                 ),
@@ -80,19 +102,31 @@ class _SkillsSectionState extends ConsumerState<SkillsSection> {
     );
   }
 
-  void _addSkill() {
+  void _addSkill({Skill? skill}) {
     showDialog<dynamic>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Add Skill'),
-          content: AddSkillDialog(contoller: _contoller),
+          content: AddSkillDialog(contoller: _contoller, skill: skill),
           actions: [
             TextButton(
               onPressed: () {
-                final skill = _contoller.onSubmit?.call();
-                if (skill != null) {
-                  ref.read(skillListProvider.notifier).addSkill(skill);
+                final both = _contoller.onSubmit?.call();
+                if (both?.first != null) {
+                  if (skill == null) {
+                    ref
+                        .read(skillListProvider.notifier)
+                        .addSkill(skill: both!.first, imageBytes: both.second);
+                  } else if (skill.id != null) {
+                    ref
+                        .read(skillListProvider.notifier)
+                        .updateSkill(
+                          id: skill.id!,
+                          skill: both!.first,
+                          imageBytes: both.second,
+                        );
+                  }
                 }
               },
               child: const Text('Add'),

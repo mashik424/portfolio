@@ -1,6 +1,13 @@
+//
+// ignore_for_file: use_build_context_synchronously
+import 'dart:js_interop';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:portfolio/providers/auth_provider/auth_provider.dart';
 import 'package:portfolio/providers/theme_provider.dart';
 import 'package:portfolio/widgets/home_sections/about_section.dart';
 import 'package:portfolio/widgets/home_sections/companies_section.dart';
@@ -8,6 +15,7 @@ import 'package:portfolio/widgets/home_sections/contact_section.dart';
 import 'package:portfolio/widgets/home_sections/hero_section.dart';
 import 'package:portfolio/widgets/home_sections/projects_section.dart';
 import 'package:portfolio/widgets/home_sections/skills_section.dart';
+import 'package:web/web.dart' as web;
 
 class HomePage extends ConsumerWidget {
   HomePage({super.key});
@@ -30,10 +38,29 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
     return Scaffold(
       appBar: AppBar(
-        title:  Text(dotenv.env['TITLE'] ?? ''),
+        title: Text(dotenv.env['TITLE'] ?? ''),
         actions: [
+          if (authState.isLoggedin)
+            ElevatedButton.icon(
+              onPressed: () {
+                ref.read(authNotifierProvider.notifier).signOut();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Signed out')),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.red.withValues(alpha: 0.8),
+                backgroundColor: Colors.red.withValues(alpha: 0.1),
+              ),
+              label: const Text('Sign Out'),
+              icon: FaIcon(
+                FontAwesomeIcons.rightFromBracket,
+                color: Colors.red.withValues(alpha: 0.8),
+              ),
+            ),
           IconButton(
             icon: Icon(
               Theme.of(context).brightness == Brightness.dark
@@ -60,6 +87,11 @@ class HomePage extends ConsumerWidget {
             onPressed: () => scrollTo(contactKey),
             child: const Text('Contact'),
           ),
+          ElevatedButton.icon(
+            onPressed: () => _downploadResume(context),
+            label: const Text('Resume'),
+            icon: const FaIcon(FontAwesomeIcons.download),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -73,7 +105,7 @@ class HomePage extends ConsumerWidget {
                   onContactMe: () => scrollTo(contactKey),
                   onViewWork: () => scrollTo(projectsKey),
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 0),
                 const SkillsSection(),
                 const SizedBox(height: 50),
                 ProjectsSection(key: projectsKey),
@@ -90,5 +122,38 @@ class HomePage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _downploadResume(BuildContext context) async {
+    try {
+      final ref = FirebaseStorage.instance.ref().child('resume.pdf');
+      final bytes = await ref.getData();
+
+      if (bytes == null) {
+        throw Exception('Failed to download resume');
+      }
+
+      // Convert to JS BlobPart array
+      final blobParts = <web.BlobPart>[bytes.toJS].toJS;
+      // Create Blob and Object URL
+      final blob = web.Blob(blobParts);
+      final objectUrl = web.URL.createObjectURL(blob);
+
+      final anchor =
+          web.HTMLAnchorElement()
+            ..href = objectUrl
+            ..download = '${dotenv.env['NAME'] ?? 'resume'}.pdf'
+            ..style.display = 'none';
+
+      web.document.body!.append(anchor);
+      anchor
+        ..click()
+        ..remove();
+      web.URL.revokeObjectURL(objectUrl);
+    } on Exception catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 }

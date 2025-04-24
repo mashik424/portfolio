@@ -36,4 +36,13 @@ class AuthNotifier extends _$AuthNotifier {
       state = AuthError(e);
     }
   }
+
+  Future<void> signOut() async {
+    try {
+      await _firebaseAuth.signOut();
+      state = const AuthInitial();
+    } on Exception catch (e) {
+      state = AuthError(e);
+    }
+  }
 }

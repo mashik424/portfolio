@@ -15,10 +15,13 @@ class AboutSection extends StatelessWidget {
           ),
           SizedBox(height: 20),
           Text(
-            'I’m a mobile developer with 4+ years of experience building '
-            'scalable apps using Flutter for startups and businesses. I focus '
-            'on clean code, maintainable architecture, and creating a smooth '
-            'user experience.',
+            'Mobile App Developer with nearly 5 years of experience '
+            'specializing in cross-platform solutions using Flutter, Android '
+            '(Kotlin, Jetpack Compose), and iOS (Swift, SwiftUI). Skilled in '
+            'REST APIs, GraphQL, real-time features (Firebase, Agora), and '
+            'payment integration (Razorpay, in-app purchases). Passionate about'
+            ' delivering high-performance, user-centric applications and '
+            'collaborating on innovative projects.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, height: 1.5),
           ),

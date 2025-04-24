@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/providers/contacts_provider/contacts_provider.dart';
 import 'package:portfolio/utils/utils.dart' as utils;
 
@@ -55,7 +56,7 @@ class _ContactSectionState extends State<ContactSection> {
                               utils.launchEmail(contacts.email);
                             }
                           },
-                          icon: const Icon(Icons.email),
+                          icon: const FaIcon(FontAwesomeIcons.solidEnvelope),
                           label: const Text('Email Me'),
                         ),
                         ElevatedButton.icon(
@@ -65,7 +66,7 @@ class _ContactSectionState extends State<ContactSection> {
                               utils.launchPhone(contacts.mobile);
                             }
                           },
-                          icon: const Icon(Icons.phone),
+                          icon: const FaIcon(FontAwesomeIcons.phone),
                           label: const Text('Call Me'),
                         ),
                         ElevatedButton.icon(
@@ -75,7 +76,7 @@ class _ContactSectionState extends State<ContactSection> {
                               utils.launch(contacts.linkedin);
                             }
                           },
-                          icon: const Icon(Icons.business),
+                          icon: const FaIcon(FontAwesomeIcons.linkedin),
                           label: const Text('LinkedIn'),
                         ),
                         ElevatedButton.icon(
@@ -85,7 +86,7 @@ class _ContactSectionState extends State<ContactSection> {
                               utils.launch(contacts.github);
                             }
                           },
-                          icon: const Icon(Icons.code),
+                          icon: const FaIcon(FontAwesomeIcons.github),
                           label: const Text('GitHub'),
                         ),
                       ],

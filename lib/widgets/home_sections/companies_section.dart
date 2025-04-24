@@ -100,7 +100,7 @@ class _CompaniesSectionState extends ConsumerState<CompaniesSection> {
                         .updateCompany(
                           id: company.id!,
                           company: both!.first!,
-                          bytes: both.second,
+                          imageBytes: both.second,
                         );
                   }
                 }
