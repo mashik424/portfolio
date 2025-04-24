@@ -68,7 +68,6 @@ class HomePage extends ConsumerWidget {
             constraints: const BoxConstraints(maxWidth: 1200),
             child: Column(
               children: [
-                Text(dotenv.env.toString()),
                 HeroSection(
                   key: heroKey,
                   onContactMe: () => scrollTo(contactKey),
