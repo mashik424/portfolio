@@ -5,6 +5,7 @@ import 'package:portfolio/models/skill.dart';
 import 'package:portfolio/providers/auth_provider/auth_provider.dart';
 import 'package:portfolio/providers/skills_provider/skills_provider.dart';
 import 'package:portfolio/widgets/dialogs/add_skill_dialog.dart';
+import 'package:reorderables/reorderables.dart';
 
 class SkillsSection extends ConsumerStatefulWidget {
   const SkillsSection({super.key});
@@ -39,62 +40,76 @@ class _SkillsSectionState extends ConsumerState<SkillsSection> {
             if (snapshot.hasData) {
               skills.addAll(snapshot.data!);
             }
+            final children = [
+              ...skills.map(
+                (skill) => GestureDetector(
+                  onTap: () {
+                    if (authState.isLoggedin && skill.id != null) {
+                      _addSkill(skill: skill);
+                    }
+                  },
+                  child: Chip(
+                    deleteIcon: const Icon(Icons.close),
+                    labelPadding: EdgeInsets.zero,
+                    onDeleted:
+                        authState.isLoggedin
+                            ? () {
+                              if (authState.isLoggedin && skill.id != null) {
+                                ref
+                                    .read(skillListProvider.notifier)
+                                    .deleteSkill(skill);
+                              }
+                            }
+                            : null,
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (skill.avatar != null) ...[
+                          CachedNetworkImage(
+                            imageUrl: skill.avatar!,
+                            height: 24,
+                            width: 24,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(skill.name),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                ),
+              ),
+              if (authState.isLoggedin)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _addSkill,
+                  child: const Chip(
+                    label: Text('Add new skill'),
+                    avatar: Icon(Icons.add),
+                  ),
+                ),
+            ];
+            if (authState.isLoggedin) {
+              return ReorderableWrap(
+                onReorder:
+                    (oldIndex, newIndex) => ref
+                        .read(skillListProvider.notifier)
+                        .reorder(oldIndex: oldIndex, newIndex: newIndex),
+                alignment: WrapAlignment.center,
+                spacing: 15,
+                runSpacing: 15,
+                children: children,
+              );
+            }
+
             return Wrap(
               alignment: WrapAlignment.center,
               spacing: 15,
               runSpacing: 15,
-              children: [
-                ...skills.map(
-                  (skill) => GestureDetector(
-                    onTap: () {
-                      if (authState.isLoggedin && skill.id != null) {
-                        _addSkill(skill: skill);
-                      }
-                    },
-                    child: Chip(
-                      deleteIcon: const Icon(Icons.close),
-                      labelPadding: EdgeInsets.zero,
-                      onDeleted:
-                          authState.isLoggedin
-                              ? () {
-                                if (authState.isLoggedin && skill.id != null) {
-                                  ref
-                                      .read(skillListProvider.notifier)
-                                      .deleteSkill(skill);
-                                }
-                              }
-                              : null,
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (skill.avatar != null) ...[
-                            CachedNetworkImage(
-                              imageUrl: skill.avatar!,
-                              height: 24,
-                              width: 24,
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                          Text(skill.name),
-                        ],
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
-                ),
-                if (authState.isLoggedin)
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _addSkill,
-                    child: const Chip(
-                      label: Text('Add new skill'),
-                      avatar: Icon(Icons.add),
-                    ),
-                  ),
-              ],
+              children: children,
             );
           },
         ),

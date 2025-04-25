@@ -70,6 +70,10 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
               ),
             ),
             actions: [
+              TextButton(
+                onPressed: Navigator.of(context).pop,
+                child: const Text('Cancel'),
+              ),
               TextButton(onPressed: _login, child: const Text('Submit')),
             ],
           );
