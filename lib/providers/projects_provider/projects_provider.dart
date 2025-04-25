@@ -12,10 +12,11 @@ class ProjectsList extends _$ProjectsList {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
   @override
   Future<List<Project>> build() async {
-    final snapshot = await _firestore
-      .collection('projects')
-      .orderBy('date_of_creation', descending: true)
-      .get();
+    final snapshot =
+        await _firestore
+            .collection('projects')
+            .orderBy('date_of_creation', descending: true)
+            .get();
 
     if (snapshot.docs.isNotEmpty) {
       return snapshot.docs
@@ -44,7 +45,10 @@ class ProjectsList extends _$ProjectsList {
 
     await _firestore
         .collection('projects')
-        .add(project.copyWith(imageUrl: imageUrl).toJson());
+        .add(
+          project.copyWith(imageUrl: imageUrl).toJson()
+            ..addAll({'date_of_creation': DateTime.now()}),
+        );
 
     ref.invalidateSelf();
     await future;
