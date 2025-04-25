@@ -50,7 +50,7 @@ functions/.env
 web/env
 env
 .firebaserc
-firebase.json
+# firebase.json
 firestore.indexes.json
 firestore.rules
 storage.rules
