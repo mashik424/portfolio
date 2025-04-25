@@ -1,16 +1,20 @@
 # portfolio
 
-A new Flutter project.
+## About
 
-## Getting Started
+This is my personal portfolio project showcasing my skills, projects, and experiences. It is designed to highlight my expertise in software development and provide a platform to share my work.
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- Overview of my skills and expertise.
+- Showcase of completed projects with descriptions and links.
+- Contact information for collaboration or inquiries.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Technologies Used
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Flutter.
+- Firestore.
+- Firebase Auth.
+- Firebase Functions.
+- Firebase Hosting.
+- Firebase Storage.
