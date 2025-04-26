@@ -18,11 +18,15 @@ class SkillList extends _$SkillList {
 
   @override
   Future<List<Skill>> build() async {
-    final snapshot = await _skills.orderBy('order', descending: false).get();
+    final snapshot = await _skills.get();
     if (snapshot.docs.isNotEmpty) {
-      return snapshot.docs
-          .map((doc) => Skill.fromJson(doc.data(), id: doc.id))
-          .toList();
+      final list =
+          snapshot.docs
+              .map((doc) => Skill.fromJson(doc.data(), id: doc.id))
+              .toList()
+            ..sort((a, b) => a.order.compareTo(b.order));
+
+      return list;
     } else {
       throw Exception('No skills found');
     }
@@ -39,12 +43,20 @@ class SkillList extends _$SkillList {
           fileName: skill.name,
         ).future,
       );
-    } else {}
+    }
 
-    await _skills.add(skill.copyWith(avatar: logoUrl).toJson());
+    final docRef = await _skills.add(skill.copyWith(avatar: logoUrl).toJson());
 
-    ref.invalidateSelf();
-    await future;
+    await docRef.get().then((value) async {
+      await Future.delayed(const Duration(seconds: 1), () async {
+        final skill = Skill.fromJson(value.data()!, id: value.id);
+        final skills = await future;
+        skills
+          ..add(skill)
+          ..sort((a, b) => a.order.compareTo(b.order));
+        state = AsyncValue.data(skills);
+      });
+    });
   }
 
   Future<void> deleteSkill(Skill skill) async {
@@ -53,8 +65,11 @@ class SkillList extends _$SkillList {
     }
     await _skills.doc(skill.id).delete();
 
-    ref.invalidateSelf();
-    await future;
+    final skills = await future;
+    skills
+      ..removeWhere((s) => s.id == skill.id)
+      ..sort((a, b) => a.order.compareTo(b.order));
+    state = AsyncValue.data(skills);
   }
 
   Future<void> updateSkill({

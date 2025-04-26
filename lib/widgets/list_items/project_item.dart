@@ -39,9 +39,16 @@ class ProjectItem extends ConsumerWidget {
               borderRadius: BorderRadius.circular(15),
               color: isDarkTheme ? Colors.grey.shade700 : Colors.grey.shade300,
             ),
-            child:
-                project.imageUrl == null
-                    ? const SizedBox.shrink()
+            child: Builder(
+              builder: (context) {
+                final placeHolder = Center(
+                  child: Text(
+                    project.name[0],
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
+                );
+                return project.imageUrl == null
+                    ? placeHolder
                     : CachedNetworkImage(
                       imageUrl: project.imageUrl ?? '',
                       imageBuilder: (context, imageProvider) {
@@ -55,7 +62,9 @@ class ProjectItem extends ConsumerWidget {
                           ),
                         );
                       },
-                    ),
+                    );
+              },
+            ),
           ),
           const SizedBox(height: 15),
           Row(
