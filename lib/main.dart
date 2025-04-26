@@ -24,10 +24,7 @@ class MyApp extends ConsumerWidget {
       title: dotenv.env['TITLE'] ?? '',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          alignLabelWithHint: true,
-        ),
+        inputDecorationTheme: _inputDecorationTheme,
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
@@ -35,10 +32,7 @@ class MyApp extends ConsumerWidget {
           seedColor: Colors.teal,
           brightness: Brightness.dark,
         ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          alignLabelWithHint: true,
-        ),
+        inputDecorationTheme: _inputDecorationTheme,
         useMaterial3: true,
       ),
       themeMode: ref.watch(themeProvider), // Use system theme by default
@@ -46,3 +40,8 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
+
+InputDecorationTheme get _inputDecorationTheme => InputDecorationTheme(
+  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  alignLabelWithHint: true,
+);
