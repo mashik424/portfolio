@@ -10,9 +10,9 @@ class Skill {
     );
   }
 
-  Skill copyWith({String? name, String? avatar, int? order}) {
+  Skill copyWith({String? name, String? avatar, int? order, String? id}) {
     return Skill(
-      id: id,
+      id: this.id ?? id,
       name: name ?? this.name,
       avatar: avatar ?? this.avatar,
       order: order ?? this.order,

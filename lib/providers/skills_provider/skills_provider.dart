@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +16,9 @@ class SkillList extends _$SkillList {
 
   CollectionReference<Map<String, dynamic>> get _skills =>
       _firestore.collection('skills');
+
+  CollectionReference<Map<String, dynamic>> get _lastSkillOrder =>
+      _firestore.collection('last_skill_order');
 
   @override
   Future<List<Skill>> build() async {
@@ -44,26 +48,26 @@ class SkillList extends _$SkillList {
         ).future,
       );
     }
+    var lastOrder = 0;
+    final lastOrderDoc = await _lastSkillOrder.limit(1).get();
+    if (lastOrderDoc.docs.isNotEmpty) {
+      lastOrder = (lastOrderDoc.docs.first.data()['order'] as num).toInt();
+    }
 
-    final docRef = await _skills.add(skill.copyWith(avatar: logoUrl).toJson());
+    final doc = await _skills.add(skill.copyWith(avatar: logoUrl).toJson());
 
-    await docRef.get().then((value) async {
-      await Future.delayed(const Duration(seconds: 1), () async {
-        final skill = Skill.fromJson(value.data()!, id: value.id);
-        final skills = await future;
-        skills
-          ..add(skill)
-          ..sort((a, b) => a.order.compareTo(b.order));
-        state = AsyncValue.data(skills);
-      });
-    });
+    final skills = await future;
+    skills
+      ..add(skill.copyWith(avatar: logoUrl, order: lastOrder + 1, id: doc.id))
+      ..sort((a, b) => a.order.compareTo(b.order));
+    state = AsyncValue.data(skills);
   }
 
   Future<void> deleteSkill(Skill skill) async {
     if (skill.avatar != null) {
-      await ref.read(deleteFileFromUrlProvider(url: skill.avatar!).future);
+      unawaited(ref.read(deleteFileFromUrlProvider(url: skill.avatar!).future));
     }
-    await _skills.doc(skill.id).delete();
+    unawaited(_skills.doc(skill.id).delete());
 
     final skills = await future;
     skills
@@ -81,7 +85,7 @@ class SkillList extends _$SkillList {
 
     if (imageBytes != null) {
       if (logoUrl != null) {
-        await ref.read(deleteFileFromUrlProvider(url: logoUrl).future);
+        unawaited(ref.read(deleteFileFromUrlProvider(url: logoUrl).future));
       }
 
       logoUrl = await ref.read(

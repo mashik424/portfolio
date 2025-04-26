@@ -182,7 +182,15 @@ exports.onSkillDeleted = functions.firestore
           order++;
         }
       }
-
+      // Update the first document in the last_skill_order collection with the new highest order
+      const lastSkillOrderCollection = db.collection("last_skill_order");
+      const lastOrderDoc = await lastSkillOrderCollection.limit(1).get();
+      if (!lastOrderDoc.empty) {
+        const docId = lastOrderDoc.docs[0].id;
+        await lastSkillOrderCollection.doc(docId).set({ order: order });
+      } else {
+        await lastSkillOrderCollection.add({ order: order - 1 });
+      }
       await batch.commit();
       logger.info(`Skill ${skillId} deleted and orders updated successfully.`);
     } catch (error) {
