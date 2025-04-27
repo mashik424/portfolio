@@ -26,7 +26,7 @@ class ProjectItem extends ConsumerWidget {
       width: 300,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDarkTheme ? Colors.grey.shade800 : Colors.indigo.shade50,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -37,7 +37,7 @@ class ProjectItem extends ConsumerWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: isDarkTheme ? Colors.grey.shade700 : Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
             child: Builder(
               builder: (context) {

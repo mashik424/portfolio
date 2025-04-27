@@ -32,9 +32,9 @@ class CompanyItem extends ConsumerWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDarkTheme ? Colors.grey.shade600 : Colors.indigo.shade200,
+             color: Theme.of(context).colorScheme.surfaceContainerHighest,
           ),
-          color: isDarkTheme ? Colors.grey.shade800 : Colors.white,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

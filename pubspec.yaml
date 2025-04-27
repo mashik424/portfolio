@@ -43,7 +43,34 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  - env
+    - env
+  fonts:
+    - family: Lora
+      fonts:
+        - asset: fonts/Lora-Bold.ttf
+          weight: 700
 
+        - asset: fonts/Lora-BoldItalic.ttf
+          style: italic
+          weight: 700
 
+        - asset: fonts/Lora-Italic.ttf
+          style: italic
+          weight: 400
 
+        - asset: fonts/Lora-Medium.ttf
+          weight: 500
+
+        - asset: fonts/Lora-MediumItalic.ttf
+          style: italic
+          weight: 500
+
+        - asset: fonts/Lora-Regular.ttf
+          weight: 400
+
+        - asset: fonts/Lora-SemiBold.ttf
+          weight: 600
+
+        - asset: fonts/Lora-SemiBoldItalic.ttf
+          style: italic
+          weight: 600

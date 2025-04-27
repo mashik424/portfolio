@@ -6,6 +6,7 @@ import 'package:portfolio/models/both.dart';
 import 'package:portfolio/models/company.dart';
 import 'package:portfolio/providers/file_upload_provider/file_upload_provider.dart';
 import 'package:portfolio/providers/pick_image_provider/pick_image_provider.dart';
+import 'package:portfolio/widgets/month_year_picker.dart';
 
 class AddCompanyDialogContoller {
   Both<Company?, Uint8List?> Function()? onSubmit;
@@ -42,20 +43,13 @@ class _AddCompanyDialogState extends ConsumerState<AddCompanyDialog> {
       _startDate = widget.company!.startDate;
       _endDate = widget.company!.endDate;
       _editingControllers = List.generate(
-        4,
+        2,
         (index) => TextEditingController(
-          text:
-              [
-                widget.company!.name,
-                widget.company!.description,
-                widget.company!.startDate.toLocal().toString().split(' ')[0],
-                widget.company!.endDate?.toLocal().toString().split(' ')[0] ??
-                    '',
-              ][index],
+          text: [widget.company!.name, widget.company!.description, ''][index],
         ),
       );
     } else {
-      _editingControllers = List.generate(4, (_) => TextEditingController());
+      _editingControllers = List.generate(3, (_) => TextEditingController());
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.company?.logoUrl != null) {
@@ -94,12 +88,18 @@ class _AddCompanyDialogState extends ConsumerState<AddCompanyDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final sameStartAndEndYear =
+        _startDate != null &&
+        _endDate != null &&
+        _startDate!.year == _endDate!.year;
+
     return Form(
       key: _formKey,
       child: SizedBox(
         width: 400,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextFormField(
               autofocus: true,
@@ -130,81 +130,67 @@ class _AddCompanyDialogState extends ConsumerState<AddCompanyDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              readOnly: true,
-              controller: _editingControllers[2],
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: _startDate ?? DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime.now(),
-                );
-                if (date != null) {
-                  setState(() {
-                    _startDate = date;
-                    _editingControllers[2].text =
-                        _startDate?.toLocal().toString().split(' ')[0] ?? '';
-                  });
+            Text('Start Date', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            MonthYearPicker(
+              initialValue: _startDate,
+              firstYear: DateTime.now().year - 40,
+              lastYear: _endDate?.year ?? DateTime.now().year,
+              onChanged: (value) => setState(() => _startDate = value),
+              monthValidator: (value) {
+                if (value == null) {
+                  return 'Please pick a month';
                 }
+
+                return null;
               },
-              decoration: InputDecoration(
-                labelText: 'Start Date',
-                hintText: _startDate?.toLocal().toString().split(' ')[0] ?? '',
-              ),
-              validator: (value) {
-                if (_startDate == null) {
-                  return 'Please enter a start date';
+              yearValidator: (value) {
+                if (value == null) {
+                  return 'Please pick a year';
                 }
                 return null;
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _editingControllers[3],
-              readOnly: true,
-              enabled: !_isCurrentCompany,
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: _endDate ?? DateTime.now(),
-                  firstDate: _startDate ?? DateTime(2000),
-                  lastDate: DateTime.now(),
-                );
-                if (date != null) {
-                  setState(() {
-                    _endDate = date;
-                    _editingControllers[3].text =
-                        _endDate?.toLocal().toString().split(' ')[0] ?? '';
-                  });
-                }
-              },
-              decoration: InputDecoration(
-                labelText: 'End Date',
-                hintText: _endDate?.toLocal().toString().split(' ')[0] ?? '',
+            if (!_isCurrentCompany) ...[
+              Text('End Date', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              MonthYearPicker(
+                initialValue: _endDate,
+                firstYear: _startDate?.year ?? DateTime.now().year - 40,
+                lastYear: DateTime.now().year,
+                onChanged: (value) => setState(() => _endDate = value),
+                monthValidator: (value) {
+                  if (value == null) {
+                    return 'Please pick a month';
+                  }
+                  if (sameStartAndEndYear &&
+                      _startDate!.month > _endDate!.month) {
+                    return 'Invalid end Date';
+                  }
+                  return null;
+                },
+                yearValidator: (value) {
+                  if (value == null) {
+                    return 'Please pick a year';
+                  }
+                  return null;
+                },
               ),
-              validator: (value) {
-                if (!_isCurrentCompany && _endDate == null) {
-                  return 'Please enter an end date';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+            ],
             CheckboxListTile(
               title: const Text('Is Current Company'),
               value: _isCurrentCompany,
               onChanged: (value) {
                 setState(() {
                   if (value ?? false) {
-                    _editingControllers[3].text = '';
                     _endDate = null;
                   }
                   _isCurrentCompany = value!;
                 });
               },
             ),
-
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _pickImage,

@@ -23,13 +23,15 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: dotenv.env['TITLE'] ?? '',
       theme: ThemeData(
+        fontFamily: 'Lora',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         inputDecorationTheme: _inputDecorationTheme,
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
+        fontFamily: 'Lora',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
+          seedColor: const Color(0xFF014421),
           brightness: Brightness.dark,
         ),
         inputDecorationTheme: _inputDecorationTheme,
